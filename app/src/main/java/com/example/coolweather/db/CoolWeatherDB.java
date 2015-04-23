@@ -123,4 +123,8 @@ public class CoolWeatherDB {
         }
         return list;
     }
+
+    public void deleteProvince(){
+        db.delete("Province",null,null);
+    }
 }
