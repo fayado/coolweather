@@ -57,6 +57,8 @@ public class XmlWeather
         new Thread(new Runnable() {
             @Override
             public void run() {
+                List<weather> cityWeather = new ArrayList<weather>();
+                List<weather> weathers = new ArrayList<weather>();
                 XmlWeather test = new XmlWeather();
                 String x = "";
                 String path = "http://flash.weather.com.cn/wmaps/xml/"+province+".xml";
@@ -74,17 +76,42 @@ public class XmlWeather
                 Element root = doc.getRootElement();
                 test.getElementList(root);
                 x = test.getListString(elemList);
-                @SuppressWarnings("unchecked")
-                List<weather> weathers = JsonUtil.getListFromJsonArrStr(x, weather.class);
-                List<weather> cityWeather = new ArrayList<weather>();
-                for(weather i : weathers){
+                elemList.clear();
+                try {
+                    weathers.clear();
+                    cityWeather.clear();
+                    JSONArray jsonArray = new JSONArray(x);
+                    for(int i = 0;i < jsonArray.length(); i++){
+                        weather weather = new weather();
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        if (province.equals("china")) {
+                            weather.setCityname(jsonObject.getString("quName"));
+                            weather.setPyName(jsonObject.getString("pyName"));
+
+                        }else {
+                            weather.setCityname(jsonObject.getString("cityname"));
+                            weather.setPyName(jsonObject.getString("centername"));
+                        }
+                        weather.setTem1(jsonObject.getString("tem1")+"℃");
+                        weather.setTem2(jsonObject.getString("tem2")+"℃");
+                        weather.setTemNow(jsonObject.getString("temNow")+"℃");
+                        weather.setTime(jsonObject.getString("time"));
+                        weather.setStateDetailed(jsonObject.getString("stateDetailed"));
+                        cityWeather.add(weather);
+                    }
+                    System.out.println(cityWeather);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                for(weather i : cityWeather){
                     if(city.equals(i.getCityname())){
-                        cityWeather.add(i);
+                        weathers.add(i);
                         break;
                     }
                 }
                 if(listener != null){
-                    listener.onFinish(cityWeather);
+                    listener.onFinish(weathers);
                 }
             }
         }).start();
@@ -94,7 +121,7 @@ public class XmlWeather
      * <功能详细描述>
      * @param city
      */
-    public static void getAreaWeather(final String city,final HttpCallbackListener listener){
+    public synchronized static void getAreaWeather(final String city,final HttpCallbackListener listener){
     	new Thread(new Runnable() {
             @Override
             public void run() {
@@ -115,6 +142,7 @@ public class XmlWeather
                 Element root = doc.getRootElement();
                 test.getElementList(root);
                 String x = test.getListString(elemList);
+                elemList.clear();
 
                 //getElementList(root);
                 try {
