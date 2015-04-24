@@ -136,6 +136,7 @@ public class XmlWeather
                 } catch (DocumentException e) {
                     if(listener != null){
                         listener.onError(e);
+                        return;
                     }
                 }
                 // 获取XML根元素

@@ -88,7 +88,7 @@ public class ChooseAreaActivity extends Activity {
                 }
             }
         });
-        queryProvinces();
+            queryProvinces();
     }
 
     private void queryProvinces(){
@@ -178,8 +178,16 @@ public class ChooseAreaActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            closeProgressDialog();
-                            Toast.makeText(ChooseAreaActivity.this,"加载失败",Toast.LENGTH_SHORT).show();
+                            if (currentLevel == LEVEL_CITY){
+                                Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                                intent.putExtra("city_code", selectedProvince.getProvinceCode());
+                                intent.putExtra("county_name",selectedCity.getCityName());
+                                startActivity(intent);
+                                finish();
+                            }else {
+                                closeProgressDialog();
+                                Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
